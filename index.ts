@@ -15,7 +15,7 @@ const connection = mysql.createConnection({
     database: 'rgt'
 })
 
-app.post('/codingTest/post', async (req,res) => {
+app.post('/codingTest/post', (req,res) => {
     const orderId = req.body.order_id;
     const productName = req.body.product_name;
     const options = req.body.options;
@@ -30,17 +30,22 @@ app.post('/codingTest/post', async (req,res) => {
     const seq = req.body.seq;
     const ordererName = req.body.orderer_name;
 
-    connection.connect();
-    let sql = 'insert into codingtest(order_id, product_name, options, table_no, quantity, order_date, order_time, date_time, robot_status, dong, ho, seq, orderer_name) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-    connection.query(sql, [orderId, productName, options, tableNo, quantity, orderDate, orderTime, dateTime, robotStatus, dong, ho, seq, ordererName], (err, result, field) => {
-        if(err){
-            console.error(err);
-            res.status(500).send({error: "error"});
-            return;
-        }
-        res.send({orderId: orderId});
-    })
-    await connection.end();
+    try{
+        connection.connect();
+        let sql = 'insert into codingtest(order_id, product_name, options, table_no, quantity, order_date, order_time, date_time, robot_status, dong, ho, seq, orderer_name) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        connection.query(sql, [orderId, productName, options, tableNo, quantity, orderDate, orderTime, dateTime, robotStatus, dong, ho, seq, ordererName], (err, result, field) => {
+            if(err){
+                console.error(err);
+                res.status(500).send({error: "error"});
+                return;
+            }
+            res.send({orderId: orderId});
+        })
+    }catch(e){
+        console.error(e);
+    }finally{
+        connection.end();
+    }
 })
 
 app.get('/', (req,res) => {
